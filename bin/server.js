@@ -1,4 +1,4 @@
-#!/usr/bin/env node -r esm
+#!/usr/bin/env node
 
 import 'localenv';
 import optimist from 'optimist';
@@ -39,10 +39,33 @@ if (argv.help) {
 }
 
 const server = CreateServer({
-    max_tcp_sockets: argv['max-sockets'],
-    secure: argv.secure,
-    domain: argv.domain,
+    max_tcp_sockets: process.env.LT_MAX_SOCKETS || 100,
+    secure: process.env.LT_SECURE,
+    domain: process.env.LT_DOMAIN,
 });
+
+server.listen(argv.port, argv.address, () => {
+    debug('server listening on port: %d', server.address().port);
+});
+
+process.on('SIGINT', () => {
+    process.exit();
+});
+
+process.on('SIGTERM', () => {
+    process.exit();
+});
+
+process.on('uncaughtException', (err) => {
+    log.error(err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    log.error(reason);
+});
+
+// vim: ft=javascript
+
 
 server.listen(argv.port, argv.address, () => {
     debug('server listening on port: %d', server.address().port);
