@@ -39,10 +39,33 @@ if (argv.help) {
 }
 
 const server = CreateServer({
-    max_tcp_sockets: process.env.LT_MAX_SOCKETS || 100,
-    secure: process.env.LT_SECURE,
-    domain: process.env.LT_DOMAIN,
+    max_tcp_sockets: 100,
+    secure: false,
+    domain: "lts-bx3v.onrender.com",
 });
+
+server.listen(argv.port, argv.address, () => {
+    debug('server listening on port: %d', server.address().port);
+});
+
+process.on('SIGINT', () => {
+    process.exit();
+});
+
+process.on('SIGTERM', () => {
+    process.exit();
+});
+
+process.on('uncaughtException', (err) => {
+    log.error(err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    log.error(reason);
+});
+
+// vim: ft=javascript
+
 
 server.listen(argv.port, argv.address, () => {
     debug('server listening on port: %d', server.address().port);
